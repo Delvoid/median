@@ -34,6 +34,6 @@ export class ArticlesService {
   }
 
   remove(id: number) {
-    this.prisma.article.delete({ where: { id } });
+    return this.prisma.article.delete({ where: { id } });
   }
 }
