@@ -6,7 +6,9 @@ import {
   Patch,
   Param,
   Delete,
+  NotFoundException,
   ParseIntPipe,
+  Logger,
 } from '@nestjs/common';
 import { ArticlesService } from './articles.service';
 import { CreateArticleDto } from './dto/create-article.dto';
@@ -18,6 +20,8 @@ import { ArticleEntity } from './entities/article.entity';
 @ApiTags('articles')
 export class ArticlesController {
   constructor(private readonly articlesService: ArticlesService) {}
+
+  Logger = new Logger('ArticlesController');
 
   @Post()
   @ApiCreatedResponse({ type: ArticleEntity })
@@ -39,8 +43,12 @@ export class ArticlesController {
 
   @Get(':id')
   @ApiOkResponse({ type: ArticleEntity })
-  findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.articlesService.findOne(+id);
+  async findOne(@Param('id', ParseIntPipe) id: number) {
+    const article = await this.articlesService.findOne(+id);
+    if (!article) {
+      throw new NotFoundException(`Article #${id} not found`);
+    }
+    return article;
   }
 
   @Patch(':id')
